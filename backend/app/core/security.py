@@ -1,7 +1,11 @@
+# Importa datetime, timedelta
 from datetime import datetime, timedelta
+# Importa jwt
 import jwt
+# Importa settings
 from app.settings import settings
 
+# Definição da função create_jwt
 def create_jwt(email: str) -> str:
     payload = {
         "sub": email,

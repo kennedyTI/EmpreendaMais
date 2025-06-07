@@ -1,15 +1,19 @@
+# Importa jwt
 import jwt
+# Importa datetime, timedelta
 from datetime import datetime, timedelta
 
 # ------------------------------
 # Importa as variáveis de configuração do settings.py
 # (validadas e carregadas do .env)
 # ------------------------------
+# Importa SECRET_KEY, ALGORITHM, EXPIRATION_MINUTES
 from backend.app.settings import SECRET_KEY, ALGORITHM, EXPIRATION_MINUTES
 
 # ------------------------------
 # Função para criação de token JWT
 # ------------------------------
+# Definição da função create_jwt
 def create_jwt(user_email: str) -> str:
     """
     Gera um token JWT assinado contendo o email do usuário e tempo de expiração.

@@ -1,10 +1,17 @@
+# Importa APIRouter, Request
 from fastapi import APIRouter, Request
+# Importa RedirectResponse
 from starlette.responses import RedirectResponse
+# Importa AsyncOAuth2Client
 from authlib.integrations.httpx_client import AsyncOAuth2Client
+# Importa urlencode
 from urllib.parse import urlencode
 
+# Importa oauth
 from app.core.oauth import oauth
+# Importa create_jwt
 from app.core.security import create_jwt
+# Importa settings
 from app.settings import settings
 
 router = APIRouter()

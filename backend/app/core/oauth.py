@@ -1,4 +1,6 @@
+# Importa OAuth
 from authlib.integrations.starlette_client import OAuth
+# Importa settings
 from app.settings import settings
 
 oauth = OAuth()
