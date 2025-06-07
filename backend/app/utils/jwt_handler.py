@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 # Importa as variáveis de configuração do settings.py
 # (validadas e carregadas do .env)
 # ------------------------------
-from setting import SECRET_KEY, ALGORITHM, EXPIRATION_MINUTES
+from backend.app.settings import SECRET_KEY, ALGORITHM, EXPIRATION_MINUTES
 
 # ------------------------------
 # Função para criação de token JWT
