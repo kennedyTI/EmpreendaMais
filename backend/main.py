@@ -85,6 +85,7 @@ async def auth_callback(request: Request):
     jwt_token = create_jwt(user_info["email"])
 
     # Monta os parâmetros para redirecionar o front-end com as infos:
+    """
     query = urlencode({
         "token": jwt_token,
         "name": user_info.get("name", ""),
@@ -94,7 +95,9 @@ async def auth_callback(request: Request):
 
     # Redireciona para o front-end com o token e dados do usuário:
     return RedirectResponse(url=f"http://localhost:5173/google-callback?{query}")
-
+    """
+    return RedirectResponse(url="http://localhost:5173/login?google=success")
+    
 # ------------------------------
 # Rota para iniciar o fluxo de login pelo Google:
 # ------------------------------

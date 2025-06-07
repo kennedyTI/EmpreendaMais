@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,29 @@ const LoginPage = () => {
   const [showVerification, setShowVerification] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate(); // Redirecionamento após login
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Detecta login via Google com sucesso
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const googleSuccess = params.get("google");
+
+    if (googleSuccess === "success") {
+      toast({
+        title: "Login realizado com sucesso",
+        description: "Você será redirecionado em instantes.",
+      });
+
+      // Limpa a URL
+      navigate("/login", { replace: true });
+
+      // Redireciona para o dashboard
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
+    }
+  }, [location, navigate, toast]);
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
@@ -35,7 +57,6 @@ const LoginPage = () => {
 
       const data = await response.json();
 
-      // Armazena o token JWT no localStorage:
       localStorage.setItem("token", data.access_token);
 
       toast({
@@ -43,9 +64,8 @@ const LoginPage = () => {
         description: "Você será redirecionado em instantes.",
       });
 
-      // Redireciona após o login
       setTimeout(() => {
-        navigate("/dashboard"); // Altere para sua rota protegida
+        navigate("/dashboard");
       }, 1000);
 
     } catch (error) {
