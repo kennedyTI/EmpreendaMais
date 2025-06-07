@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,20 +15,48 @@ const LoginPage = () => {
   const [showVerification, setShowVerification] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate(); // Redirecionamento após login
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulação - Na implementação real, isso será feito via Supabase
-    setTimeout(() => {
-      setShowVerification(true);
-      setLoading(false);
-      toast({
-        title: "Código de Verificação Enviado",
-        description: "Por favor, verifique o app móvel para obter o código de verificação.",
+
+    try {
+      const response = await fetch("http://localhost:8000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
-    }, 1000);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Erro ao fazer login.");
+      }
+
+      const data = await response.json();
+
+      // Armazena o token JWT no localStorage:
+      localStorage.setItem("token", data.access_token);
+
+      toast({
+        title: "Login realizado com sucesso",
+        description: "Você será redirecionado em instantes.",
+      });
+
+      // Redireciona após o login
+      setTimeout(() => {
+        navigate("/dashboard"); // Altere para sua rota protegida
+      }, 1000);
+
+    } catch (error) {
+      toast({
+        title: "Erro no login",
+        description: error.message || "Falha ao conectar.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -47,13 +74,12 @@ const LoginPage = () => {
   const handleVerificationSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulação - Na implementação real, isso será verificado via Supabase
+
     setTimeout(() => {
       setLoading(false);
       toast({
-        title: "Verificação Necessária",
-        description: "A verificação 2FA será habilitada após a integração com Supabase.",
+        title: "Verificação Simulada",
+        description: "2FA será implementado futuramente.",
         variant: "destructive",
       });
     }, 1000);
@@ -76,74 +102,48 @@ const LoginPage = () => {
             Faça login para acessar sua conta
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent>
           {!showVerification ? (
-            <>
-              <form onSubmit={handleEmailLogin} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 flex items-center">
-                    <Mail className="mr-2 h-4 w-4" /> Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="dark:bg-slate-700 dark:text-white dark:border-slate-600"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-slate-700 dark:text-slate-300 flex items-center">
-                    <KeyRound className="mr-2 h-4 w-4" /> Senha
-                  </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Sua senha"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="dark:bg-slate-700 dark:text-white dark:border-slate-600"
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full bg-sky-600 hover:bg-sky-700 text-white" 
-                  disabled={loading}
-                >
-                  {loading ? 'Entrando...' : 'Continuar'}
-                </Button>
-              </form>
-
-              <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-300 dark:border-slate-600" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white dark:bg-slate-800 text-slate-500">
-                      Ou continue com
-                    </span>
-                  </div>
-                </div>
-
-                <Button
-                  type="button"
-                  onClick={handleGoogleLogin}
-                  className="mt-4 w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
-                >
-                  <img
-                    src="https://www.google.com/favicon.ico"
-                    alt="Google"
-                    className="w-5 h-5 mr-2"
-                  />
-                  Google
-                </Button>
+            <form onSubmit={handleEmailLogin} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="flex items-center text-slate-700 dark:text-slate-300">
+                  <Mail className="mr-2 h-4 w-4" /> Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                />
               </div>
-            </>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="flex items-center text-slate-700 dark:text-slate-300">
+                  <KeyRound className="mr-2 h-4 w-4" /> Senha
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Sua senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="dark:bg-slate-700 dark:text-white dark:border-slate-600"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-sky-600 hover:bg-sky-700 text-white"
+                disabled={loading}
+              >
+                {loading ? 'Entrando...' : 'Continuar'}
+              </Button>
+            </form>
           ) : (
             <form onSubmit={handleVerificationSubmit} className="space-y-6">
               <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
@@ -152,7 +152,7 @@ const LoginPage = () => {
                   Verifique o código de 6 dígitos enviado para o app móvel
                 </p>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="verification" className="text-slate-700 dark:text-slate-300">
                   Código de Verificação
@@ -168,16 +168,42 @@ const LoginPage = () => {
                   className="text-center text-2xl tracking-widest"
                 />
               </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full bg-sky-600 hover:bg-sky-700 text-white" 
+
+              <Button
+                type="submit"
+                className="w-full bg-sky-600 hover:bg-sky-700 text-white"
                 disabled={loading || verificationCode.length !== 6}
               >
                 {loading ? 'Verificando...' : 'Verificar'}
               </Button>
             </form>
           )}
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-300 dark:border-slate-600" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-slate-800 text-slate-500">
+                  Ou continue com
+                </span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="mt-4 w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
+            >
+              <img
+                src="https://www.google.com/favicon.ico"
+                alt="Google"
+                className="w-5 h-5 mr-2"
+              />
+              Google
+            </Button>
+          </div>
         </CardContent>
 
         <CardFooter className="flex flex-col items-center space-y-4">
